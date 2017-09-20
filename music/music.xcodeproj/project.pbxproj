@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		08536EDD1F70F8F500695DC6 /* SEEResourceLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08536EDC1F70F8F500695DC6 /* SEEResourceLoader.swift */; };
+		08536EDF1F71016600695DC6 /* SEEPlayerManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08536EDE1F71016600695DC6 /* SEEPlayerManager.swift */; };
 		089CF3991F6F6D6800ED0BE1 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 089CF3981F6F6D6800ED0BE1 /* AppDelegate.swift */; };
 		089CF39B1F6F6D6800ED0BE1 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 089CF39A1F6F6D6800ED0BE1 /* ViewController.swift */; };
 		089CF39E1F6F6D6800ED0BE1 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 089CF39C1F6F6D6800ED0BE1 /* Main.storyboard */; };
@@ -14,7 +16,6 @@
 		089CF3A31F6F6D6800ED0BE1 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 089CF3A11F6F6D6800ED0BE1 /* LaunchScreen.storyboard */; };
 		089CF3AE1F6F6D6800ED0BE1 /* musicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 089CF3AD1F6F6D6800ED0BE1 /* musicTests.swift */; };
 		089CF3B91F6F6D6800ED0BE1 /* musicUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 089CF3B81F6F6D6800ED0BE1 /* musicUITests.swift */; };
-		089CF3CF1F6FADD500ED0BE1 /* SEEPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 089CF3CE1F6FADD500ED0BE1 /* SEEPlayer.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -35,6 +36,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		08536EDC1F70F8F500695DC6 /* SEEResourceLoader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SEEResourceLoader.swift; sourceTree = "<group>"; };
+		08536EDE1F71016600695DC6 /* SEEPlayerManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SEEPlayerManager.swift; sourceTree = "<group>"; };
 		089CF3951F6F6D6800ED0BE1 /* music.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = music.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		089CF3981F6F6D6800ED0BE1 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		089CF39A1F6F6D6800ED0BE1 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -48,7 +51,6 @@
 		089CF3B41F6F6D6800ED0BE1 /* musicUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = musicUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		089CF3B81F6F6D6800ED0BE1 /* musicUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = musicUITests.swift; sourceTree = "<group>"; };
 		089CF3BA1F6F6D6800ED0BE1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		089CF3CE1F6FADD500ED0BE1 /* SEEPlayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SEEPlayer.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -101,7 +103,8 @@
 			children = (
 				089CF3981F6F6D6800ED0BE1 /* AppDelegate.swift */,
 				089CF39A1F6F6D6800ED0BE1 /* ViewController.swift */,
-				089CF3CE1F6FADD500ED0BE1 /* SEEPlayer.swift */,
+				08536EDE1F71016600695DC6 /* SEEPlayerManager.swift */,
+				08536EDC1F70F8F500695DC6 /* SEEResourceLoader.swift */,
 				089CF39C1F6F6D6800ED0BE1 /* Main.storyboard */,
 				089CF39F1F6F6D6800ED0BE1 /* Assets.xcassets */,
 				089CF3A11F6F6D6800ED0BE1 /* LaunchScreen.storyboard */,
@@ -265,8 +268,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				08536EDF1F71016600695DC6 /* SEEPlayerManager.swift in Sources */,
 				089CF39B1F6F6D6800ED0BE1 /* ViewController.swift in Sources */,
-				089CF3CF1F6FADD500ED0BE1 /* SEEPlayer.swift in Sources */,
+				08536EDD1F70F8F500695DC6 /* SEEResourceLoader.swift in Sources */,
 				089CF3991F6F6D6800ED0BE1 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -518,6 +522,7 @@
 				089CF3BF1F6F6D6800ED0BE1 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		089CF3C01F6F6D6800ED0BE1 /* Build configuration list for PBXNativeTarget "musicTests" */ = {
 			isa = XCConfigurationList;
@@ -526,6 +531,7 @@
 				089CF3C21F6F6D6800ED0BE1 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		089CF3C31F6F6D6800ED0BE1 /* Build configuration list for PBXNativeTarget "musicUITests" */ = {
 			isa = XCConfigurationList;
@@ -534,6 +540,7 @@
 				089CF3C51F6F6D6800ED0BE1 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
