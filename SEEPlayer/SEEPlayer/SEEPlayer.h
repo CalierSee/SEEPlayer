@@ -50,11 +50,9 @@ typedef NS_ENUM(int, SEEPlayerStatus) {
 @end
 
 
-@interface SEEPlayer : NSObject
+@interface SEEPlayer : UIView
 
 @property (nonatomic,assign,readonly)SEEPlayerStatus status;
-
-@property (nonatomic,strong,readonly)UIView * displayView;
 
 /**
  初始化
@@ -75,8 +73,8 @@ typedef NS_ENUM(int, SEEPlayerStatus) {
 - (void)changeCurrentURL:(NSString *)url;
 
 /**
- 关闭并销毁
+ 销毁播放器
  */
-- (void)closeAndInvalidate;
+- (void)invalidate;
 
 @end

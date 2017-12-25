@@ -10,7 +10,7 @@
 #import "SEEPlayer.h"
 @interface ViewController () <SEEPlayerDelegate>
 
-@property (nonatomic,strong)SEEPlayer * player;
+@property (nonatomic,weak)SEEPlayer * player;
 
 @end
 
@@ -27,15 +27,15 @@
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc]initWithTitle:@"new url" style:UIBarButtonItemStyleDone target:self action:@selector(see_newURL:)];
     SEEPlayer * player = [[SEEPlayer alloc]initWithURL:@"http://he.yinyuetai.com/uploads/videos/common/88CE01595A940BC83C7AB2C616308D62.mp4?sc=9b0ddcaad115e009&br=3099&vid=2763591&aid=25339&area=KR&vst=0"];
     _player = player;
-    [scrollView addSubview:_player.displayView];
+    [scrollView addSubview:_player];
     _player.delegate = self;
-    _player.displayView.frame = CGRectMake(0, 0, self.view.bounds.size.width, 200);
+    _player.frame = CGRectMake(0, 0, self.view.bounds.size.width, 200);
     // Do any additional setup after loading the view, typically from a nib.
 }
 
 - (void)viewDidDisappear:(BOOL)animated {
     [super viewDidDisappear:animated];
-    [self.player closeAndInvalidate];
+    [_player invalidate];
 }
 
 - (void)dealloc {

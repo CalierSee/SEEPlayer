@@ -72,7 +72,7 @@ typedef NS_ENUM(NSInteger,SEEPlayerScreenMode) {
 //是否停止自动更新时间label
 @property (nonatomic,assign)BOOL isStopUpdateCurrentTime;
 //layer附着的view
-@property (nonatomic,strong)UIView * displayView;
+//@property (nonatomic,strong)UIView * displayView;
 //layer
 @property (nonatomic,weak)AVPlayerLayer * displayLayer;
 //时间变化监听回调对象
@@ -91,11 +91,7 @@ typedef NS_ENUM(NSInteger,SEEPlayerScreenMode) {
 - (instancetype)initWithURL:(NSString *)url {
     if (self = [super init]) {
         [self changeCurrentURL:url];
-        if ([UIDevice currentDevice].systemVersion.doubleValue >= 10.0) {
-            _player.automaticallyWaitsToMinimizeStalling = NO;
-        }
-        //监听播放器状态
-        [_player addObserver:self forKeyPath:@"status" options:NSKeyValueObservingOptionNew context:nil];
+        
         //监听app状态
         //app即将睡眠
         [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(see_waitingActivate) name:UIApplicationWillResignActiveNotification object:nil];
@@ -106,25 +102,25 @@ typedef NS_ENUM(NSInteger,SEEPlayerScreenMode) {
         //监听屏幕旋转状态
         [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(see_orientationNotification:) name:UIDeviceOrientationDidChangeNotification object:nil];
         self.status = SEEPlayerStatusUnknow;
+        //添加底部工具栏
+        [self addSubview:self.bottomToolBar];
+        //添加播放按钮
+        [self addSubview:self.playOrPauseButton];
+        //添加顶部工具栏
+        [self addSubview:self.topToolBar];
     }
     return self;
 }
 
 - (void)dealloc {
-    [self.player.currentItem removeObserver:self forKeyPath:@"playbackLikelyToKeepUp"];
-    [self.player.currentItem removeObserver:self forKeyPath:@"playbackBufferEmpty"];
-    [self.player.currentItem removeObserver:self forKeyPath:@"duration"];
-    [self.player removeObserver:self forKeyPath:@"status"];
-    if (_displayView) {
-        [_displayView removeObserver:self forKeyPath:@"frame"];
-        [_displayView removeObserver:self forKeyPath:@"window"];
-    }
+    [self see_clearPlayer];
     [[NSNotificationCenter defaultCenter]removeObserver:self];
     SEEPlayerLog(@"播放器销毁");
 }
 
 #pragma mark - public method
-- (void)closeAndInvalidate {
+
+- (void)invalidate {
     [self see_close:self.closeButton];
 }
 
@@ -144,17 +140,23 @@ typedef NS_ENUM(NSInteger,SEEPlayerScreenMode) {
         [self.player.currentItem removeObserver:self forKeyPath:@"playbackLikelyToKeepUp"];
         [self.player.currentItem removeObserver:self forKeyPath:@"playbackBufferEmpty"];
         [self.player.currentItem removeObserver:self forKeyPath:@"duration"];
-        [_player replaceCurrentItemWithPlayerItem:itme];
+        [_player replaceCurrentItemWithPlayerItem:nil];
     }
-    else {
-        _player = [[AVPlayer alloc]initWithPlayerItem:itme];
-    }
+    _player = [[AVPlayer alloc]initWithPlayerItem:itme];
+    _displayLayer = [AVPlayerLayer playerLayerWithPlayer:_player];
+    [self.layer insertSublayer:_displayLayer atIndex:0];
+    _displayLayer.backgroundColor = [UIColor blackColor].CGColor;
     //监听缓冲池数据是否可以顺利播放
     [itme addObserver:self forKeyPath:@"playbackLikelyToKeepUp" options:NSKeyValueObservingOptionNew context:nil];
     //监听缓冲池是否为空
     [itme addObserver:self forKeyPath:@"playbackBufferEmpty" options:NSKeyValueObservingOptionNew context:nil];
     //监听播放总时长变化
     [itme addObserver:self forKeyPath:@"duration" options:NSKeyValueObservingOptionNew context:nil];
+    if ([UIDevice currentDevice].systemVersion.doubleValue >= 10.0) {
+        _player.automaticallyWaitsToMinimizeStalling = NO;
+    }
+    //监听播放器状态
+    [_player addObserver:self forKeyPath:@"status" options:NSKeyValueObservingOptionNew context:nil];
     //监听播放进度改变
     __weak typeof(self) weakSelf = self;
     _observer = [_player addPeriodicTimeObserverForInterval:CMTimeMake(1000, 1000) queue:dispatch_get_main_queue() usingBlock:^(CMTime time) {
@@ -168,35 +170,27 @@ typedef NS_ENUM(NSInteger,SEEPlayerScreenMode) {
             }
         }
     }];
-    if (self.status & SEEPlayerStatusPlay) {
-        [self see_play];
-    }
-    else if (self.status & SEEPlayerStatusPause){
-        [self see_playOrPauseButtonAction:self.playOrPauseButton];
-    }
-    else {
-        
-    }
 }
 
 #pragma mark - private method
 
 //界面布局
-- (void)see_layoutSubViews{
-    self.displayLayer.position = CGPointMake(self.displayView.bounds.size.width / 2, self.displayView.bounds.size.height / 2);
-    self.displayLayer.bounds = self.displayView.bounds;
+- (void)layoutSubviews {
+    [super layoutSubviews];
+    self.displayLayer.position = CGPointMake(self.bounds.size.width / 2, self.bounds.size.height / 2);
+    self.displayLayer.bounds = self.bounds;
     //顶部工具条
-    self.topToolBar.frame = CGRectMake(0, 0, self.displayView.bounds.size.width, 44);
+    self.topToolBar.frame = CGRectMake(0, 0, self.bounds.size.width, 44);
     self.titleLabel.frame = CGRectMake(10, 0, self.topToolBar.bounds.size.width - 64, self.topToolBar.bounds.size.height);
     self.closeButton.frame = CGRectMake(self.topToolBar.bounds.size.width - 54, 0, 44, 44);
     //底部工具条
-    self.bottomToolBar.frame = CGRectMake(0, self.displayView.bounds.size.height - 44, self.displayView.bounds.size.width, 44);
+    self.bottomToolBar.frame = CGRectMake(0, self.bounds.size.height - 44, self.bounds.size.width, 44);
     self.currentTimeLabel.frame = CGRectMake(10, 0, 60, 44);
     self.slider.frame = CGRectMake(70, 0, self.bottomToolBar.frame.size.width - 184, 44);
     self.durationLabel.frame = CGRectMake(self.bottomToolBar.frame.size.width - 114, 0, 60, 44);
     self.fullScreenButton.frame = CGRectMake(self.bottomToolBar.frame.size.width - 54, 0, 44, 44);
     //播放按钮
-    self.playOrPauseButton.frame = CGRectMake(0,44,self.displayView.bounds.size.width,self.displayView.bounds.size.height - 88);
+    self.playOrPauseButton.frame = CGRectMake(0,44,self.bounds.size.width,self.bounds.size.height - 88);
 }
 
 
@@ -283,10 +277,20 @@ typedef NS_ENUM(NSInteger,SEEPlayerScreenMode) {
 
 //清除播放器
 - (void)see_clearPlayer {
-    if (_player) {
+    if (_player.currentItem) {
+        //暂停视频
+        [self see_pause];
         [self.player removeTimeObserver:_observer];
+        [self.player.currentItem cancelPendingSeeks];
+        [self.player.currentItem.asset cancelLoading];
+        [self.player.currentItem removeObserver:self forKeyPath:@"playbackLikelyToKeepUp"];
+        [self.player.currentItem removeObserver:self forKeyPath:@"playbackBufferEmpty"];
+        [self.player.currentItem removeObserver:self forKeyPath:@"duration"];
+        [self.player removeObserver:self forKeyPath:@"status"];
+        _player = nil;
         _observer = nil;
         _resourceLoader = nil;
+        [_displayLayer removeFromSuperlayer];
         [[NSNotificationCenter defaultCenter]postNotificationName:SEEPlayerClearNotification object:nil];
     }
 }
@@ -299,21 +303,20 @@ typedef NS_ENUM(NSInteger,SEEPlayerScreenMode) {
 
 //关闭
 - (void)see_close:(UIButton *)button {
-    //暂停视频
-    [self see_pause];
+    
     //如果是全屏状态则切换到小屏幕
     if (self.isFullScreen) {
         [self see_fullScreen:self.fullScreenButton];
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             //移除播放器
-            [self.displayView removeFromSuperview];
+            [self removeFromSuperview];
             //清除播放器
             [self see_clearPlayer];
 
         });
     }
     else {
-        [self.displayView removeFromSuperview];
+        [self removeFromSuperview];
         //清除播放器
         [self see_clearPlayer];
     }
@@ -322,18 +325,18 @@ typedef NS_ENUM(NSInteger,SEEPlayerScreenMode) {
 
 //屏幕方向改变重新布局控件
 - (void)see_orientationNotification:(NSNotification *)noti {
-    if (self.displayView.superview == nil) return;
+    if (self.superview == nil) return;
     
 //    NSDictionary * userInfo = noti.userInfo;
     UIDeviceOrientation orient = [UIDevice currentDevice].orientation;
     
     if (self.isFullScreen) {
-        self.displayView.frame = [UIScreen mainScreen].bounds;
+        self.frame = [UIScreen mainScreen].bounds;
     }
     //如果当前不是全屏播放状态，并且屏幕方向变为横屏 则默认进入全屏状态
     else if (orient == UIDeviceOrientationLandscapeLeft || orient == UIDeviceOrientationLandscapeRight) {
         [self see_fullScreen:self.fullScreenButton];
-        self.displayView.frame = [UIScreen mainScreen].bounds;
+        self.frame = [UIScreen mainScreen].bounds;
     }
 }
 
@@ -357,14 +360,14 @@ typedef NS_ENUM(NSInteger,SEEPlayerScreenMode) {
     sender.selected = !sender.selected;
     if (sender.selected) {
         self.isFullScreen = YES;
-        self.originSuperView = self.displayView.superview;
-        self.originFrame = self.displayView.frame;
-        [self.displayView removeFromSuperview];
+        self.originSuperView = self.superview;
+        self.originFrame = self.frame;
+        [self removeFromSuperview];
         self.windowFrame = [self.originSuperView convertRect:self.originFrame toView:[UIApplication sharedApplication].keyWindow];
-        self.displayView.frame = self.windowFrame;
-        [[UIApplication sharedApplication].keyWindow addSubview:self.displayView];
+        self.frame = self.windowFrame;
+        [[UIApplication sharedApplication].keyWindow addSubview:self];
         [UIView animateWithDuration:0.25 animations:^{
-            self.displayView.frame = [UIScreen mainScreen].bounds;
+            self.frame = [UIScreen mainScreen].bounds;
         } completion:^(BOOL finished) {
             if (self.status & SEEPlayerStatusPlay) {
                 [_player play];
@@ -374,11 +377,11 @@ typedef NS_ENUM(NSInteger,SEEPlayerScreenMode) {
     else {
         self.isFullScreen = NO;
         [UIView animateWithDuration:0.25 animations:^{
-            self.displayView.frame = self.windowFrame;
+            self.frame = self.windowFrame;
         } completion:^(BOOL finished) {
-            [self.displayView removeFromSuperview];
-            [self.originSuperView addSubview:self.displayView];
-            self.displayView.frame = self.originFrame;
+            [self removeFromSuperview];
+            [self.originSuperView addSubview:self];
+            self.frame = self.originFrame;
             if (self.status & SEEPlayerStatusPlay) {
                 [_player play];
             }
@@ -452,43 +455,12 @@ typedef NS_ENUM(NSInteger,SEEPlayerScreenMode) {
             [self see_buffering];
         }
     }
-    else if ([keyPath isEqualToString:@"frame"]) { //监听展示view的frame变化，当frame变化重新布局界面
-        [self see_layoutSubViews];
-    }
     else if ([keyPath isEqualToString:@"duration"]) { //监听播放时长变化
         self.durationLabel.text = [self see_timeStringWithTime:self.player.currentItem.duration];
-    }
-    else if ([keyPath isEqualToString:@"window"]) {
-//        if (self.displayView.window == nil) {
-//            [self see_smallScreen];
-//        }
-//        else {
-//            self see_
-//        }
     }
 }
 
 #pragma mark - getter & setter
-- (UIView *)displayView {
-    if (_displayView == nil) {
-        _displayView = [[UIView alloc]init];
-        //添加画面layer
-        AVPlayerLayer * layer = [AVPlayerLayer playerLayerWithPlayer:_player];
-        _displayLayer = layer;
-        _displayLayer.backgroundColor = [UIColor blackColor].CGColor;
-        [_displayView.layer addSublayer:self.displayLayer];
-        //监听视图frame变化布局子控件
-        [_displayView addObserver:self forKeyPath:@"frame" options:NSKeyValueObservingOptionNew context:nil];
-        //添加底部工具栏
-        [_displayView addSubview:self.bottomToolBar];
-        //添加播放按钮
-        [_displayView addSubview:self.playOrPauseButton];
-        //添加顶部工具栏
-        [_displayView addSubview:self.topToolBar];
-        [_displayView addObserver:self forKeyPath:@"window" options:NSKeyValueObservingOptionNew context:nil];
-    }
-    return _displayView;
-}
 
 //设置播放状态
 - (void)setStatus:(SEEPlayerStatus)status {

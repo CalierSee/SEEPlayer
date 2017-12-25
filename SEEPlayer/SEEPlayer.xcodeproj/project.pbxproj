@@ -20,6 +20,9 @@
 		08E6DDDC1FA1B22A005965EE /* SEEPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 08E6DDDB1FA1B22A005965EE /* SEEPlayer.m */; };
 		08E6DDDF1FA1B957005965EE /* SEEResourceLoader.m in Sources */ = {isa = PBXBuildFile; fileRef = 08E6DDDE1FA1B957005965EE /* SEEResourceLoader.m */; };
 		08E6DDEB1FA303D8005965EE /* SEEDownloadManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 08E6DDEA1FA303D8005965EE /* SEEDownloadManager.m */; };
+		18E45232684FA869D8690455 /* libPods-SEEPlayerUITests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C84237E4B974440FBD17060E /* libPods-SEEPlayerUITests.a */; };
+		5CAFBCD24E806567F91724F1 /* libPods-SEEPlayer.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 717C22CBB4617AD723054AE7 /* libPods-SEEPlayer.a */; };
+		F118DF7629B51597725FCD05 /* libPods-SEEPlayerTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 388D9E67B7DA49597EF38CC5 /* libPods-SEEPlayerTests.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -67,6 +70,15 @@
 		08E6DDDE1FA1B957005965EE /* SEEResourceLoader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SEEResourceLoader.m; sourceTree = "<group>"; };
 		08E6DDE91FA303D8005965EE /* SEEDownloadManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SEEDownloadManager.h; sourceTree = "<group>"; };
 		08E6DDEA1FA303D8005965EE /* SEEDownloadManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SEEDownloadManager.m; sourceTree = "<group>"; };
+		10BBE28DEE219511094C5A8D /* Pods-SEEPlayerTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SEEPlayerTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-SEEPlayerTests/Pods-SEEPlayerTests.debug.xcconfig"; sourceTree = "<group>"; };
+		1F9B1F321EDCD7226EA659E5 /* Pods-SEEPlayerUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SEEPlayerUITests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-SEEPlayerUITests/Pods-SEEPlayerUITests.debug.xcconfig"; sourceTree = "<group>"; };
+		2A13ABE705F8D32886CB3966 /* Pods-SEEPlayerUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SEEPlayerUITests.release.xcconfig"; path = "Pods/Target Support Files/Pods-SEEPlayerUITests/Pods-SEEPlayerUITests.release.xcconfig"; sourceTree = "<group>"; };
+		388D9E67B7DA49597EF38CC5 /* libPods-SEEPlayerTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-SEEPlayerTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		717C22CBB4617AD723054AE7 /* libPods-SEEPlayer.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-SEEPlayer.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		7D1472668E3EB119A0E8A2A4 /* Pods-SEEPlayer.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SEEPlayer.debug.xcconfig"; path = "Pods/Target Support Files/Pods-SEEPlayer/Pods-SEEPlayer.debug.xcconfig"; sourceTree = "<group>"; };
+		C0FD7E7888B23B6C83D14244 /* Pods-SEEPlayerTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SEEPlayerTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-SEEPlayerTests/Pods-SEEPlayerTests.release.xcconfig"; sourceTree = "<group>"; };
+		C84237E4B974440FBD17060E /* libPods-SEEPlayerUITests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-SEEPlayerUITests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		DD47189C246F047498D9AF45 /* Pods-SEEPlayer.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SEEPlayer.release.xcconfig"; path = "Pods/Target Support Files/Pods-SEEPlayer/Pods-SEEPlayer.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -74,6 +86,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5CAFBCD24E806567F91724F1 /* libPods-SEEPlayer.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -81,6 +94,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F118DF7629B51597725FCD05 /* libPods-SEEPlayerTests.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -88,6 +102,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				18E45232684FA869D8690455 /* libPods-SEEPlayerUITests.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -101,6 +116,8 @@
 				08E6DDC01FA1B202005965EE /* SEEPlayerTests */,
 				08E6DDCB1FA1B202005965EE /* SEEPlayerUITests */,
 				08E6DDA51FA1B202005965EE /* Products */,
+				97FB314A2350F89050213C75 /* Pods */,
+				2111DD73547686C36CB6167A /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -167,6 +184,29 @@
 			path = SEEPlayerUITests;
 			sourceTree = "<group>";
 		};
+		2111DD73547686C36CB6167A /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				717C22CBB4617AD723054AE7 /* libPods-SEEPlayer.a */,
+				388D9E67B7DA49597EF38CC5 /* libPods-SEEPlayerTests.a */,
+				C84237E4B974440FBD17060E /* libPods-SEEPlayerUITests.a */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		97FB314A2350F89050213C75 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				7D1472668E3EB119A0E8A2A4 /* Pods-SEEPlayer.debug.xcconfig */,
+				DD47189C246F047498D9AF45 /* Pods-SEEPlayer.release.xcconfig */,
+				10BBE28DEE219511094C5A8D /* Pods-SEEPlayerTests.debug.xcconfig */,
+				C0FD7E7888B23B6C83D14244 /* Pods-SEEPlayerTests.release.xcconfig */,
+				1F9B1F321EDCD7226EA659E5 /* Pods-SEEPlayerUITests.debug.xcconfig */,
+				2A13ABE705F8D32886CB3966 /* Pods-SEEPlayerUITests.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -174,9 +214,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 08E6DDD11FA1B202005965EE /* Build configuration list for PBXNativeTarget "SEEPlayer" */;
 			buildPhases = (
+				99FD2366A5EE682DB3B00939 /* [CP] Check Pods Manifest.lock */,
 				08E6DDA01FA1B202005965EE /* Sources */,
 				08E6DDA11FA1B202005965EE /* Frameworks */,
 				08E6DDA21FA1B202005965EE /* Resources */,
+				8078878507252E031D55303F /* [CP] Embed Pods Frameworks */,
+				F46B9DF556D6C81CF6127461 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -191,9 +234,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 08E6DDD41FA1B202005965EE /* Build configuration list for PBXNativeTarget "SEEPlayerTests" */;
 			buildPhases = (
+				0D6D9850BF4B8B0FB980C4F7 /* [CP] Check Pods Manifest.lock */,
 				08E6DDB91FA1B202005965EE /* Sources */,
 				08E6DDBA1FA1B202005965EE /* Frameworks */,
 				08E6DDBB1FA1B202005965EE /* Resources */,
+				C84D71CE3215822A42E916CC /* [CP] Embed Pods Frameworks */,
+				3D11E864A4CD168D1A650FCB /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -209,9 +255,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 08E6DDD71FA1B202005965EE /* Build configuration list for PBXNativeTarget "SEEPlayerUITests" */;
 			buildPhases = (
+				1B03521FF8D27697C3DB6197 /* [CP] Check Pods Manifest.lock */,
 				08E6DDC41FA1B202005965EE /* Sources */,
 				08E6DDC51FA1B202005965EE /* Frameworks */,
 				08E6DDC61FA1B202005965EE /* Resources */,
+				F3DA6703917D128BDDCF6924 /* [CP] Embed Pods Frameworks */,
+				660AB2D6CB0BA0013CB4E938 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -297,6 +346,144 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		0D6D9850BF4B8B0FB980C4F7 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		1B03521FF8D27697C3DB6197 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		3D11E864A4CD168D1A650FCB /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-SEEPlayerTests/Pods-SEEPlayerTests-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		660AB2D6CB0BA0013CB4E938 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-SEEPlayerUITests/Pods-SEEPlayerUITests-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		8078878507252E031D55303F /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-SEEPlayer/Pods-SEEPlayer-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		99FD2366A5EE682DB3B00939 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		C84D71CE3215822A42E916CC /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-SEEPlayerTests/Pods-SEEPlayerTests-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		F3DA6703917D128BDDCF6924 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-SEEPlayerUITests/Pods-SEEPlayerUITests-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		F46B9DF556D6C81CF6127461 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-SEEPlayer/Pods-SEEPlayer-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		08E6DDA01FA1B202005965EE /* Sources */ = {
@@ -457,6 +644,7 @@
 		};
 		08E6DDD21FA1B202005965EE /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 7D1472668E3EB119A0E8A2A4 /* Pods-SEEPlayer.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				DEVELOPMENT_TEAM = 36BB695Z56;
@@ -470,6 +658,7 @@
 		};
 		08E6DDD31FA1B202005965EE /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = DD47189C246F047498D9AF45 /* Pods-SEEPlayer.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				DEVELOPMENT_TEAM = 36BB695Z56;
@@ -483,6 +672,7 @@
 		};
 		08E6DDD51FA1B202005965EE /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 10BBE28DEE219511094C5A8D /* Pods-SEEPlayerTests.debug.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				DEVELOPMENT_TEAM = 36BB695Z56;
@@ -496,6 +686,7 @@
 		};
 		08E6DDD61FA1B202005965EE /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = C0FD7E7888B23B6C83D14244 /* Pods-SEEPlayerTests.release.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				DEVELOPMENT_TEAM = 36BB695Z56;
@@ -509,6 +700,7 @@
 		};
 		08E6DDD81FA1B202005965EE /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 1F9B1F321EDCD7226EA659E5 /* Pods-SEEPlayerUITests.debug.xcconfig */;
 			buildSettings = {
 				DEVELOPMENT_TEAM = 36BB695Z56;
 				INFOPLIST_FILE = SEEPlayerUITests/Info.plist;
@@ -521,6 +713,7 @@
 		};
 		08E6DDD91FA1B202005965EE /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 2A13ABE705F8D32886CB3966 /* Pods-SEEPlayerUITests.release.xcconfig */;
 			buildSettings = {
 				DEVELOPMENT_TEAM = 36BB695Z56;
 				INFOPLIST_FILE = SEEPlayerUITests/Info.plist;
