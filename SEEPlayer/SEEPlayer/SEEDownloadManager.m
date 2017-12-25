@@ -23,6 +23,8 @@
 //文件名
 @property (nonatomic,copy)NSString * fileName;
 
+@property (nonatomic,strong)NSURLSession * session;
+
 @end
 
 @implementation SEEDownloadManager {
@@ -37,10 +39,16 @@
     if (self = [super init]) {
         [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(see_pause) name:SEEPlayerWillResignActiveNotification object:nil];
         [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(see_resume) name:SEEPlayerDidBecomeActiveNotification object:nil];
+        [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(see_cancel) name:SEEPlayerClearNotification object:nil];
     }
     return self;
 }
 
+- (void)dealloc {
+    SEEPlayerLog(@"downloadManager销毁");
+}
+
+#pragma mark - public method
 - (void)downLoadWithOffset:(long long)offset url:(NSURL *)url; {
     if (self.task) {
         [self.task suspend];
@@ -54,8 +62,8 @@
     //SEEPlayerLog(@"创建request请求 %@",[request valueForHTTPHeaderField:@"Range"]);
 #endif
     NSURLSessionConfiguration * configure = [NSURLSessionConfiguration defaultSessionConfiguration];
-    NSURLSession * session = [NSURLSession sessionWithConfiguration:configure delegate:self delegateQueue:[NSOperationQueue mainQueue]];
-    self.task = [session dataTaskWithRequest:request];
+    self.session = [NSURLSession sessionWithConfiguration:configure delegate:self delegateQueue:[NSOperationQueue mainQueue]];
+    self.task = [self.session dataTaskWithRequest:request];
     [self.task resume];
 }
 
@@ -72,9 +80,15 @@
     }
 }
 
+- (void)see_cancel {
+    [self.session invalidateAndCancel];
+    self.task = nil;
+}
+
 #pragma mark - NSURLSessionDelegate
 - (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveResponse:(NSURLResponse *)response completionHandler:(void (^)(NSURLSessionResponseDisposition))completionHandler {
     self.fileName = response.suggestedFilename;
+    [[NSNotificationCenter defaultCenter]postNotificationName:SEEDownloadManagerDidReceiveFileNameNotification object:nil userInfo:@{@"fileName": self.fileName.length ? self.fileName : @""}];
     //询问代理是否开始下载
     if (_responder.didReceiveResponse) {
         [self.delegate managerDidReceiveResponse:response completionHandler:completionHandler];

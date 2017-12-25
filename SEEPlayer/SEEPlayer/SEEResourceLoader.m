@@ -50,6 +50,10 @@
     return self;
 }
 
+- (void)dealloc {
+    SEEPlayerLog(@"resourceLoader销毁");
+}
+
 #pragma mark - public method
 - (void)buffering {
     __block long long maxOffset = 0;
@@ -109,9 +113,7 @@
 #pragma mark - AVAssetResourceLoaderDelegate
 
 - (BOOL)resourceLoader:(AVAssetResourceLoader *)resourceLoader shouldWaitForLoadingOfRequestedResource:(AVAssetResourceLoadingRequest *)loadingRequest {
-#ifdef DEBUG
 //    //SEEPlayerLog(@"接收到请求 --- offset: %zd length: %zd currentOffset:%zd",loadingRequest.dataRequest.requestedOffset,loadingRequest.dataRequest.requestedLength,loadingRequest.dataRequest.currentOffset);
-#endif
     [self.requests addObject:loadingRequest];
     //下载
     [self see_downLoadResourceLoadingRequest:loadingRequest];
@@ -119,9 +121,7 @@
 }
 
 - (void)resourceLoader:(AVAssetResourceLoader *)resourceLoader didCancelLoadingRequest:(AVAssetResourceLoadingRequest *)loadingRequest {
-#ifdef DEBUG
     //SEEPlayerLog(@"取消请求 --- offset: %zd length: %zd currentOffset: %zd",loadingRequest.dataRequest.requestedOffset,loadingRequest.dataRequest.requestedLength,loadingRequest.dataRequest.currentOffset);
-#endif
     [self.requests removeObject:loadingRequest];
 }
 

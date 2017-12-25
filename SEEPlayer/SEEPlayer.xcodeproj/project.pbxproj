@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0833DE491FC69B2000578C34 /* testViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 0833DE481FC69B2000578C34 /* testViewController.m */; };
 		083591211FA40C59002F55A9 /* SEEDataManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 083591201FA40C59002F55A9 /* SEEDataManager.m */; };
 		08E6DDA91FA1B202005965EE /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 08E6DDA81FA1B202005965EE /* main.m */; };
 		08E6DDAC1FA1B202005965EE /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 08E6DDAB1FA1B202005965EE /* AppDelegate.m */; };
@@ -39,6 +40,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		0833DE471FC69B2000578C34 /* testViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = testViewController.h; sourceTree = "<group>"; };
+		0833DE481FC69B2000578C34 /* testViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = testViewController.m; sourceTree = "<group>"; };
 		0835911F1FA40C59002F55A9 /* SEEDataManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SEEDataManager.h; sourceTree = "<group>"; };
 		083591201FA40C59002F55A9 /* SEEDataManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SEEDataManager.m; sourceTree = "<group>"; };
 		083591221FA6D454002F55A9 /* SEEPlayer_Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SEEPlayer_Header.h; sourceTree = "<group>"; };
@@ -118,6 +121,8 @@
 				08E6DDAB1FA1B202005965EE /* AppDelegate.m */,
 				08E6DDAD1FA1B202005965EE /* ViewController.h */,
 				08E6DDAE1FA1B202005965EE /* ViewController.m */,
+				0833DE471FC69B2000578C34 /* testViewController.h */,
+				0833DE481FC69B2000578C34 /* testViewController.m */,
 				083591221FA6D454002F55A9 /* SEEPlayer_Header.h */,
 				08E6DDDA1FA1B229005965EE /* SEEPlayer.h */,
 				08E6DDDB1FA1B22A005965EE /* SEEPlayer.m */,
@@ -304,6 +309,7 @@
 				08E6DDAC1FA1B202005965EE /* AppDelegate.m in Sources */,
 				08E6DDA91FA1B202005965EE /* main.m in Sources */,
 				08E6DDDF1FA1B957005965EE /* SEEResourceLoader.m in Sources */,
+				0833DE491FC69B2000578C34 /* testViewController.m in Sources */,
 				08E6DDEB1FA303D8005965EE /* SEEDownloadManager.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

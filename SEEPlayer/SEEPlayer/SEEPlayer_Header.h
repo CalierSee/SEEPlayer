@@ -18,6 +18,10 @@
 #define SEEPlayerBufferingNotification @"SEEPlayerBufferingNotification"
 //缓冲状态检查task
 #define SEEPlayerCheckTaskNotification @"SEEPlayerCheckTaskNotification"
+//播放器关闭通知
+#define SEEPlayerClearNotification @"SEEPlayerClearNotification"
+//获取到目标文件名通知
+#define SEEDownloadManagerDidReceiveFileNameNotification @"SEEDownloadManagerDidReceiveFileNameNotification"
 
 #define SEEPlayerWillResignActiveNotification @"SEEPlayerWillResignActiveNotification"
 

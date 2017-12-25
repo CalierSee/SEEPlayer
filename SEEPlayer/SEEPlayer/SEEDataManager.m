@@ -54,6 +54,11 @@
     return self;
 }
 
+- (void)dealloc {
+    SEEPlayerLog(@"dataManager销毁");
+}
+
+#pragma mark - public method
 - (void)downLoadDataWithRange:(SEEDataRange)range
 {
     //如果当前处于缓存播放状态，则不发出请求 直接调用下载完成的方法通知resourceLoader填充数据
@@ -155,9 +160,7 @@
         }
     }
     else {
-#ifdef DEBUG
         //SEEPlayerLog(@"缓存中无目标文件，从网络请求");
-#endif
         self.isCache = NO;
         completionHandler(NSURLSessionResponseAllow);
     }

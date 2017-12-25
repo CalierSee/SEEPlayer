@@ -10,22 +10,37 @@
 #import "SEEResourceLoader.h"
 #import "SEEPlayer_Header.h"
 
+typedef NS_ENUM(NSInteger,SEEPlayerScreenMode) {
+    SEEPlayerScreenModeNormal,
+    SEEPlayerScreenModeSmall,
+    SEEPlayerScreenModeFull,
+};
+
+
 @interface SEEPlayer ()
-//播放状态
+
+/**
+ 播放状态
+ */
 @property (nonatomic,assign)SEEPlayerStatus status;
 
-//播放暂停按钮
+/**
+ 播放暂停按钮
+ */
 @property (nonatomic,strong)UIButton * playOrPauseButton;
 
-
-//顶部工具条
+/**
+ 顶部工具条
+ */
 @property (nonatomic,strong)UIView * topToolBar;
 //标题label
 @property (nonatomic,strong)UILabel * titleLabel;
 //关闭按钮
 @property (nonatomic,strong)UIButton * closeButton;
 
-//底部工具条
+/**
+ 底部工具条
+ */
 @property (nonatomic,strong)UIView * bottomToolBar;
 //进度条
 @property (nonatomic,strong)UISlider * slider;
@@ -34,26 +49,34 @@
 @property (nonatomic,strong)UILabel * currentTimeLabel;
 //全屏按钮
 @property (nonatomic,strong)UIButton * fullScreenButton;
+
+//当前是否为全屏状态
 @property (nonatomic,assign)BOOL isFullScreen;
+
+@property (nonatomic,assign)SEEPlayerScreenMode screenMode;
+
+/**
+ 全屏小屏位置
+ */
+//原始父视图
+@property (nonatomic,weak)UIView * originSuperView;
+//原始大小
+@property (nonatomic,assign)CGRect originFrame;
+//全屏大小
+@property (nonatomic,assign)CGRect windowFrame;
+
 /**
  播放器
  */
 @property (nonatomic,strong)AVPlayer * player;
-@property (nonatomic,strong)AVPlayerItem * item;
-@property (nonatomic,strong)AVURLAsset * asset;
+//是否停止自动更新时间label
 @property (nonatomic,assign)BOOL isStopUpdateCurrentTime;
 //layer附着的view
 @property (nonatomic,strong)UIView * displayView;
+//layer
 @property (nonatomic,weak)AVPlayerLayer * displayLayer;
-
-
-
-//全屏
-@property (nonatomic,weak)UIView * originSuperView;
-@property (nonatomic,assign)CGRect originFrame;
-
-
-@property (nonatomic,assign)CGRect windowFrame;
+//时间变化监听回调对象
+@property (nonatomic,strong)id observer;
 
 @end
 
@@ -67,89 +90,96 @@
 
 - (instancetype)initWithURL:(NSString *)url {
     if (self = [super init]) {
-        //创建资源下载器
-        _resourceLoader = [[SEEResourceLoader alloc]initWithURL:[NSURL URLWithString:url]];
-
-        //创建urlasset
-        _asset = [AVURLAsset URLAssetWithURL:_resourceLoader.url options:nil];
-        //设置代理
-        [_asset.resourceLoader setDelegate:_resourceLoader queue:dispatch_get_main_queue()];
-        //创建item
-        _item = [AVPlayerItem playerItemWithAsset:_asset automaticallyLoadedAssetKeys:nil];
-        //创建player
-        _player = [[AVPlayer alloc]initWithPlayerItem:_item];
+        [self changeCurrentURL:url];
         if ([UIDevice currentDevice].systemVersion.doubleValue >= 10.0) {
             _player.automaticallyWaitsToMinimizeStalling = NO;
         }
         //监听播放器状态
         [_player addObserver:self forKeyPath:@"status" options:NSKeyValueObservingOptionNew context:nil];
-        //监听缓冲池数据是否可以顺利播放
-        [_item addObserver:self forKeyPath:@"playbackLikelyToKeepUp" options:NSKeyValueObservingOptionNew context:nil];
-        //监听缓冲池是否为空
-        [_item addObserver:self forKeyPath:@"playbackBufferEmpty" options:NSKeyValueObservingOptionNew context:nil];
-        //监听播放总时长变化
-        [_item addObserver:self forKeyPath:@"duration" options:NSKeyValueObservingOptionNew context:nil];
-        //监听播放进度改变
-        __weak typeof(self) weakSelf = self;
-        [_player addPeriodicTimeObserverForInterval:CMTimeMake(1000, 1000) queue:dispatch_get_main_queue() usingBlock:^(CMTime time) {
-            if (weakSelf.isStopUpdateCurrentTime) return;
-            weakSelf.slider.value = (time.value / time.timescale) / ((_item.duration.value / _item.duration.timescale) * 1.0);
-            weakSelf.currentTimeLabel.text = [weakSelf see_timeStringWithTime:time];
-            if (weakSelf.slider.value == 1) {
-                //如果播放完成则暂停播放
-                if (self.status & SEEPlayerStatusPlay) {
-                    [weakSelf see_playOrPauseButtonAction:weakSelf.playOrPauseButton];
-                }
-            }
-        }];
-        
         //监听app状态
         //app即将睡眠
         [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(see_waitingActivate) name:UIApplicationWillResignActiveNotification object:nil];
         //app被激活
         [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(see_becomeActivate) name:UIApplicationDidBecomeActiveNotification object:nil];
-        
-        
+        //获取到文件名通知
+        [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(see_setTitle:) name:SEEDownloadManagerDidReceiveFileNameNotification object:nil];
         //监听屏幕旋转状态
         [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(see_orientationNotification:) name:UIDeviceOrientationDidChangeNotification object:nil];
         self.status = SEEPlayerStatusUnknow;
-        [self see_loadUI];
-        
     }
     return self;
 }
 
 - (void)dealloc {
-    [_item removeObserver:self forKeyPath:@"playbackLikelyToKeepUp"];
-    [_item removeObserver:self forKeyPath:@"playbackBufferEmpty"];
-    [_item removeObserver:self forKeyPath:@"duration"];
-    [_player removeObserver:self forKeyPath:@"status"];
-    
+    [self.player.currentItem removeObserver:self forKeyPath:@"playbackLikelyToKeepUp"];
+    [self.player.currentItem removeObserver:self forKeyPath:@"playbackBufferEmpty"];
+    [self.player.currentItem removeObserver:self forKeyPath:@"duration"];
+    [self.player removeObserver:self forKeyPath:@"status"];
+    if (_displayView) {
+        [_displayView removeObserver:self forKeyPath:@"frame"];
+        [_displayView removeObserver:self forKeyPath:@"window"];
+    }
     [[NSNotificationCenter defaultCenter]removeObserver:self];
+    SEEPlayerLog(@"播放器销毁");
+}
+
+#pragma mark - public method
+- (void)closeAndInvalidate {
+    [self see_close:self.closeButton];
+}
+
+- (void)changeCurrentURL:(NSString *)url {
+    [self see_clearPlayer];
+    //创建资源下载器
+    _resourceLoader = [[SEEResourceLoader alloc]initWithURL:[NSURL URLWithString:url]];
+    
+    //创建urlasset
+    AVURLAsset * asset = [AVURLAsset URLAssetWithURL:_resourceLoader.url options:nil];
+    //设置代理
+    [asset.resourceLoader setDelegate:_resourceLoader queue:dispatch_get_main_queue()];
+    //创建item
+    AVPlayerItem * itme = [AVPlayerItem playerItemWithAsset:asset automaticallyLoadedAssetKeys:nil];
+    //创建player
+    if (_player.currentItem) {
+        [self.player.currentItem removeObserver:self forKeyPath:@"playbackLikelyToKeepUp"];
+        [self.player.currentItem removeObserver:self forKeyPath:@"playbackBufferEmpty"];
+        [self.player.currentItem removeObserver:self forKeyPath:@"duration"];
+        [_player replaceCurrentItemWithPlayerItem:itme];
+    }
+    else {
+        _player = [[AVPlayer alloc]initWithPlayerItem:itme];
+    }
+    //监听缓冲池数据是否可以顺利播放
+    [itme addObserver:self forKeyPath:@"playbackLikelyToKeepUp" options:NSKeyValueObservingOptionNew context:nil];
+    //监听缓冲池是否为空
+    [itme addObserver:self forKeyPath:@"playbackBufferEmpty" options:NSKeyValueObservingOptionNew context:nil];
+    //监听播放总时长变化
+    [itme addObserver:self forKeyPath:@"duration" options:NSKeyValueObservingOptionNew context:nil];
+    //监听播放进度改变
+    __weak typeof(self) weakSelf = self;
+    _observer = [_player addPeriodicTimeObserverForInterval:CMTimeMake(1000, 1000) queue:dispatch_get_main_queue() usingBlock:^(CMTime time) {
+        if (weakSelf.isStopUpdateCurrentTime) return;
+        weakSelf.slider.value = (time.value / time.timescale) / ((weakSelf.player.currentItem.duration.value / weakSelf.player.currentItem.duration.timescale) * 1.0);
+        weakSelf.currentTimeLabel.text = [weakSelf see_timeStringWithTime:time];
+        if (weakSelf.slider.value == 1) {
+            //如果播放完成则暂停播放
+            if (self.status & SEEPlayerStatusPlay) {
+                [weakSelf see_playOrPauseButtonAction:weakSelf.playOrPauseButton];
+            }
+        }
+    }];
+    if (self.status & SEEPlayerStatusPlay) {
+        [self see_play];
+    }
+    else if (self.status & SEEPlayerStatusPause){
+        [self see_playOrPauseButtonAction:self.playOrPauseButton];
+    }
+    else {
+        
+    }
 }
 
 #pragma mark - private method
-- (void)see_loadUI {
-    UIView * view = [[UIView alloc]init];
-    //创建播放器layer
-    AVPlayerLayer * layer = [AVPlayerLayer playerLayerWithPlayer:_player];
-    layer.backgroundColor = [UIColor blackColor].CGColor;
-    [view.layer addSublayer:layer];
-    self.displayView = view;
-    self.displayLayer = layer;
-    [self.displayView addObserver:self forKeyPath:@"frame" options:NSKeyValueObservingOptionNew context:nil];
-    //添加底部工具栏
-    [view addSubview:self.bottomToolBar];
-    self.bottomToolBar.hidden = YES;
-    [self.bottomToolBar addSubview:self.slider];
-    [self.bottomToolBar addSubview:self.currentTimeLabel];
-    [self.bottomToolBar addSubview:self.durationLabel];
-    [self.bottomToolBar addSubview:self.fullScreenButton];
-    [view addSubview:self.playOrPauseButton];
-    [view addSubview:self.topToolBar];
-    [self.topToolBar addSubview:self.titleLabel];
-    [self.topToolBar addSubview:self.closeButton];
-}
 
 //界面布局
 - (void)see_layoutSubViews{
@@ -165,7 +195,6 @@
     self.slider.frame = CGRectMake(70, 0, self.bottomToolBar.frame.size.width - 184, 44);
     self.durationLabel.frame = CGRectMake(self.bottomToolBar.frame.size.width - 114, 0, 60, 44);
     self.fullScreenButton.frame = CGRectMake(self.bottomToolBar.frame.size.width - 54, 0, 44, 44);
-    self.bottomToolBar.hidden = NO;
     //播放按钮
     self.playOrPauseButton.frame = CGRectMake(0,44,self.displayView.bounds.size.width,self.displayView.bounds.size.height - 88);
 }
@@ -203,7 +232,7 @@
 //缓冲
 - (void)see_bufferSomeSeconds {
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        if (!_item.playbackLikelyToKeepUp) {
+        if (!self.player.currentItem.playbackLikelyToKeepUp) {
             [self see_bufferSomeSeconds];
             [[NSNotificationCenter defaultCenter]postNotificationName:SEEPlayerCheckTaskNotification object:nil];
         }
@@ -239,6 +268,7 @@
 //播放失败
 - (void)see_failed {
     self.status = SEEPlayerStatusFailed;
+    SEEPlayerLog(@"%@",self.player.error);
     [_player pause];
 }
 
@@ -251,7 +281,22 @@
     return [NSString stringWithFormat:@"%02lld:%02lld",minutes,seconds];
 }
 
+//清除播放器
+- (void)see_clearPlayer {
+    if (_player) {
+        [self.player removeTimeObserver:_observer];
+        _observer = nil;
+        _resourceLoader = nil;
+        [[NSNotificationCenter defaultCenter]postNotificationName:SEEPlayerClearNotification object:nil];
+    }
+}
+
 #pragma mark - action mehtod
+//设置标题
+- (void)see_setTitle:(NSNotification *)noti {
+    self.titleLabel.text = noti.userInfo[@"fileName"];
+}
+
 //关闭
 - (void)see_close:(UIButton *)button {
     //暂停视频
@@ -260,18 +305,25 @@
     if (self.isFullScreen) {
         [self see_fullScreen:self.fullScreenButton];
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            //移除播放器
             [self.displayView removeFromSuperview];
+            //清除播放器
+            [self see_clearPlayer];
+
         });
     }
     else {
         [self.displayView removeFromSuperview];
+        //清除播放器
+        [self see_clearPlayer];
     }
-    
     
 }
 
 //屏幕方向改变重新布局控件
 - (void)see_orientationNotification:(NSNotification *)noti {
+    if (self.displayView.superview == nil) return;
+    
 //    NSDictionary * userInfo = noti.userInfo;
     UIDeviceOrientation orient = [UIDevice currentDevice].orientation;
     
@@ -337,7 +389,7 @@
 - (void)see_timeChanged:(UISlider *)sender {
     //播放器未准备好或者播放失败时禁用按钮
     if (self.status >= SEEPlayerStatusFailed) return;
-    CMTime time = CMTimeMake(_item.duration.value * sender.value, _item.duration.timescale);
+    CMTime time = CMTimeMake(self.player.currentItem.duration.value * sender.value, self.player.currentItem.duration.timescale);
     self.currentTimeLabel.text = [self see_timeStringWithTime:time];
 }
 
@@ -355,7 +407,7 @@
         return ;
     }
     [_player pause];
-    CMTime time = _item.duration;
+    CMTime time = self.player.currentItem.duration;
     CGFloat scale = sender.value;
     time = CMTimeMake(time.value * scale, time.timescale);
     [_player seekToTime:time];
@@ -371,8 +423,8 @@
         sender.value = 0;
         return ;
     }
-    CMTime time = _item.currentTime;
-    self.slider.value = (time.value / time.timescale) / ((_item.duration.value / _item.duration.timescale) * 1.0);
+    CMTime time = self.player.currentItem.currentTime;
+    self.slider.value = (time.value / time.timescale) / ((self.player.currentItem.duration.value / self.player.currentItem.duration.timescale) * 1.0);
     self.currentTimeLabel.text = [self see_timeStringWithTime:time];
     self.isStopUpdateCurrentTime = NO;
 }
@@ -391,12 +443,12 @@
         }
     }
     else if ([keyPath isEqualToString:@"playbackLikelyToKeepUp"]) { //指示该项目是否有可能在不拖延的情况下顺利完成。
-        if (_item.playbackLikelyToKeepUp && self.status == SEEPlayerStatusPlay) {
+        if (self.player.currentItem.playbackLikelyToKeepUp && self.status == SEEPlayerStatusPlay) {
             [self see_play];
         }
     }
     else if ([keyPath isEqualToString:@"playbackBufferEmpty"]) { //监听缓冲池状态 如果缓冲池空则开始缓冲操作
-        if (_item.playbackBufferEmpty) {
+        if (self.player.currentItem.playbackBufferEmpty) {
             [self see_buffering];
         }
     }
@@ -404,20 +456,69 @@
         [self see_layoutSubViews];
     }
     else if ([keyPath isEqualToString:@"duration"]) { //监听播放时长变化
-        self.durationLabel.text = [self see_timeStringWithTime:self.item.duration];
+        self.durationLabel.text = [self see_timeStringWithTime:self.player.currentItem.duration];
+    }
+    else if ([keyPath isEqualToString:@"window"]) {
+//        if (self.displayView.window == nil) {
+//            [self see_smallScreen];
+//        }
+//        else {
+//            self see_
+//        }
     }
 }
 
 #pragma mark - getter & setter
+- (UIView *)displayView {
+    if (_displayView == nil) {
+        _displayView = [[UIView alloc]init];
+        //添加画面layer
+        AVPlayerLayer * layer = [AVPlayerLayer playerLayerWithPlayer:_player];
+        _displayLayer = layer;
+        _displayLayer.backgroundColor = [UIColor blackColor].CGColor;
+        [_displayView.layer addSublayer:self.displayLayer];
+        //监听视图frame变化布局子控件
+        [_displayView addObserver:self forKeyPath:@"frame" options:NSKeyValueObservingOptionNew context:nil];
+        //添加底部工具栏
+        [_displayView addSubview:self.bottomToolBar];
+        //添加播放按钮
+        [_displayView addSubview:self.playOrPauseButton];
+        //添加顶部工具栏
+        [_displayView addSubview:self.topToolBar];
+        [_displayView addObserver:self forKeyPath:@"window" options:NSKeyValueObservingOptionNew context:nil];
+    }
+    return _displayView;
+}
 
+//设置播放状态
+- (void)setStatus:(SEEPlayerStatus)status {
+    _status = status;
+    SEEPlayerLog(@"%zd",status);
+}
+
+//顶部工具栏
 - (UIView *)topToolBar {
     if (_topToolBar == nil) {
         _topToolBar = [[UIView alloc]init];
         _topToolBar.backgroundColor = [UIColor colorWithWhite:0 alpha:0.5];
+        [_topToolBar addSubview:self.titleLabel];
+        [_topToolBar addSubview:self.closeButton];
     }
     return _topToolBar;
 }
 
+//底部工具栏全屏按钮
+- (UIButton *)fullScreenButton {
+    if (_fullScreenButton == nil) {
+        _fullScreenButton = [[UIButton alloc]init];
+        [_fullScreenButton setTitle:@"全屏" forState:UIControlStateNormal];
+        [_fullScreenButton setTitle:@"取消" forState:UIControlStateSelected];
+        [_fullScreenButton addTarget:self action:@selector(see_fullScreen:) forControlEvents:UIControlEventTouchUpInside];
+    }
+    return _fullScreenButton;
+}
+
+//顶部工具栏title
 - (UILabel *)titleLabel {
     if (_titleLabel == nil) {
         _titleLabel = [[UILabel alloc]init];
@@ -427,6 +528,7 @@
     return _titleLabel;
 }
 
+//顶部工具栏关闭按钮
 - (UIButton *)closeButton {
     if (_closeButton == nil) {
         _closeButton = [[UIButton alloc]init];
@@ -437,7 +539,20 @@
     return _closeButton;
 }
 
+//底部工具栏
+- (UIView *)bottomToolBar {
+    if (_bottomToolBar == nil) {
+        _bottomToolBar = [[UIView alloc]init];
+        _bottomToolBar.backgroundColor = [UIColor colorWithWhite:0 alpha:0.5];
+        [_bottomToolBar addSubview:self.slider];
+        [_bottomToolBar addSubview:self.currentTimeLabel];
+        [_bottomToolBar addSubview:self.durationLabel];
+        [_bottomToolBar addSubview:self.fullScreenButton];
+    }
+    return _bottomToolBar;
+}
 
+//底部工具栏时间滑块
 - (UISlider *)slider {
     if (_slider == nil) {
         _slider = [[UISlider alloc]init];
@@ -453,6 +568,7 @@
     return _slider;
 }
 
+//底部工具栏时间label
 - (UILabel *)durationLabel {
     if (_durationLabel == nil) {
         _durationLabel = [[UILabel alloc]init];
@@ -464,6 +580,7 @@
     return _durationLabel;
 }
 
+//底部工具栏当前播放时间label
 - (UILabel *)currentTimeLabel {
     if (_currentTimeLabel == nil) {
         _currentTimeLabel = [[UILabel alloc]init];
@@ -475,14 +592,7 @@
     return _currentTimeLabel;
 }
 
-- (UIView *)bottomToolBar {
-    if (_bottomToolBar == nil) {
-        _bottomToolBar = [[UIView alloc]init];
-        _bottomToolBar.backgroundColor = [UIColor colorWithWhite:0 alpha:0.5];
-    }
-    return _bottomToolBar;
-}
-
+//播放暂停按钮
 - (UIButton *)playOrPauseButton {
     if (_playOrPauseButton == nil) {
         _playOrPauseButton = [[UIButton alloc]init];
@@ -494,21 +604,7 @@
     return _playOrPauseButton;
 }
 
-- (void)setStatus:(SEEPlayerStatus)status {
-    _status = status;
-    SEEPlayerLog(@"%zd",status);
-}
-
-- (UIButton *)fullScreenButton {
-    if (_fullScreenButton == nil) {
-        _fullScreenButton = [[UIButton alloc]init];
-        [_fullScreenButton setTitle:@"全屏" forState:UIControlStateNormal];
-        [_fullScreenButton setTitle:@"取消" forState:UIControlStateSelected];
-        [_fullScreenButton addTarget:self action:@selector(see_fullScreen:) forControlEvents:UIControlEventTouchUpInside];
-    }
-    return _fullScreenButton;
-}
-
+//设置代理
 - (void)setDelegate:(id<SEEPlayerDelegate>)delegate {
     _delegate = delegate;
     _responder.willResignFullScreen = [delegate respondsToSelector:@selector(playerWillResignFullScreen:)];

@@ -63,6 +63,20 @@ typedef NS_ENUM(int, SEEPlayerStatus) {
  */
 - (instancetype)initWithURL:(NSString *)url;
 
+//代理
 @property (nonatomic,weak)id <SEEPlayerDelegate> delegate;
+
+
+/**
+ 切换当前播放的URL
+
+ @param url url字符串
+ */
+- (void)changeCurrentURL:(NSString *)url;
+
+/**
+ 关闭并销毁
+ */
+- (void)closeAndInvalidate;
 
 @end
