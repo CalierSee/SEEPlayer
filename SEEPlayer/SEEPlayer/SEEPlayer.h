@@ -64,7 +64,6 @@ typedef NS_ENUM(int, SEEPlayerStatus) {
 //代理
 @property (nonatomic,weak)id <SEEPlayerDelegate> delegate;
 
-
 /**
  切换当前播放的URL
 

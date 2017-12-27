@@ -20,6 +20,11 @@ typedef NS_ENUM(NSInteger,SEEPlayerScreenMode) {
 @interface SEEPlayer ()
 
 /**
+ 当前正在播放的源
+ */
+@property(nonatomic,copy)NSString * currentURL;
+
+/**
  播放状态
  */
 @property (nonatomic,assign)SEEPlayerStatus status;
@@ -71,8 +76,6 @@ typedef NS_ENUM(NSInteger,SEEPlayerScreenMode) {
 @property (nonatomic,strong)AVPlayer * player;
 //是否停止自动更新时间label
 @property (nonatomic,assign)BOOL isStopUpdateCurrentTime;
-//layer附着的view
-//@property (nonatomic,strong)UIView * displayView;
 //layer
 @property (nonatomic,weak)AVPlayerLayer * displayLayer;
 //时间变化监听回调对象
@@ -91,7 +94,6 @@ typedef NS_ENUM(NSInteger,SEEPlayerScreenMode) {
 - (instancetype)initWithURL:(NSString *)url {
     if (self = [super init]) {
         [self changeCurrentURL:url];
-        
         //监听app状态
         //app即将睡眠
         [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(see_waitingActivate) name:UIApplicationWillResignActiveNotification object:nil];
@@ -101,7 +103,6 @@ typedef NS_ENUM(NSInteger,SEEPlayerScreenMode) {
         [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(see_setTitle:) name:SEEDownloadManagerDidReceiveFileNameNotification object:nil];
         //监听屏幕旋转状态
         [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(see_orientationNotification:) name:UIDeviceOrientationDidChangeNotification object:nil];
-        self.status = SEEPlayerStatusUnknow;
         //添加底部工具栏
         [self addSubview:self.bottomToolBar];
         //添加播放按钮
@@ -125,10 +126,11 @@ typedef NS_ENUM(NSInteger,SEEPlayerScreenMode) {
 }
 
 - (void)changeCurrentURL:(NSString *)url {
+    self.currentURL = url;
+    //清除旧的播放器
     [self see_clearPlayer];
     //创建资源下载器
     _resourceLoader = [[SEEResourceLoader alloc]initWithURL:[NSURL URLWithString:url]];
-    
     //创建urlasset
     AVURLAsset * asset = [AVURLAsset URLAssetWithURL:_resourceLoader.url options:nil];
     //设置代理
@@ -136,25 +138,21 @@ typedef NS_ENUM(NSInteger,SEEPlayerScreenMode) {
     //创建item
     AVPlayerItem * itme = [AVPlayerItem playerItemWithAsset:asset automaticallyLoadedAssetKeys:nil];
     //创建player
-    if (_player.currentItem) {
-        [self.player.currentItem removeObserver:self forKeyPath:@"playbackLikelyToKeepUp"];
-        [self.player.currentItem removeObserver:self forKeyPath:@"playbackBufferEmpty"];
-        [self.player.currentItem removeObserver:self forKeyPath:@"duration"];
-        [_player replaceCurrentItemWithPlayerItem:nil];
-    }
     _player = [[AVPlayer alloc]initWithPlayerItem:itme];
+    if ([UIDevice currentDevice].systemVersion.doubleValue >= 10.0) {
+        _player.automaticallyWaitsToMinimizeStalling = NO;
+    }
+    //创建播放图层
     _displayLayer = [AVPlayerLayer playerLayerWithPlayer:_player];
     [self.layer insertSublayer:_displayLayer atIndex:0];
     _displayLayer.backgroundColor = [UIColor blackColor].CGColor;
+    
     //监听缓冲池数据是否可以顺利播放
     [itme addObserver:self forKeyPath:@"playbackLikelyToKeepUp" options:NSKeyValueObservingOptionNew context:nil];
     //监听缓冲池是否为空
     [itme addObserver:self forKeyPath:@"playbackBufferEmpty" options:NSKeyValueObservingOptionNew context:nil];
     //监听播放总时长变化
     [itme addObserver:self forKeyPath:@"duration" options:NSKeyValueObservingOptionNew context:nil];
-    if ([UIDevice currentDevice].systemVersion.doubleValue >= 10.0) {
-        _player.automaticallyWaitsToMinimizeStalling = NO;
-    }
     //监听播放器状态
     [_player addObserver:self forKeyPath:@"status" options:NSKeyValueObservingOptionNew context:nil];
     //监听播放进度改变
@@ -223,6 +221,7 @@ typedef NS_ENUM(NSInteger,SEEPlayerScreenMode) {
         [self see_bufferSomeSeconds];
     }
 }
+
 //缓冲
 - (void)see_bufferSomeSeconds {
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
@@ -264,6 +263,15 @@ typedef NS_ENUM(NSInteger,SEEPlayerScreenMode) {
     self.status = SEEPlayerStatusFailed;
     SEEPlayerLog(@"%@",self.player.error);
     [_player pause];
+    
+    UIAlertController * alertC = [UIAlertController alertControllerWithTitle:@"提示" message:@"视频播放失败，是否重试?" preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction * reTryAction = [UIAlertAction actionWithTitle:@"重试" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        [self changeCurrentURL:self.currentURL];
+    }];
+    UIAlertAction * cancelAction = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleDefault handler:nil];
+    [alertC addAction:reTryAction];
+    [alertC addAction:cancelAction];
+    [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:alertC animated:YES completion:nil];
 }
 
 //返回时间字符串
@@ -280,6 +288,7 @@ typedef NS_ENUM(NSInteger,SEEPlayerScreenMode) {
     if (_player.currentItem) {
         //暂停视频
         [self see_pause];
+        self.status = SEEPlayerStatusUnknow;
         [self.player removeTimeObserver:_observer];
         [self.player.currentItem cancelPendingSeeks];
         [self.player.currentItem.asset cancelLoading];
